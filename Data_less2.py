@@ -47,16 +47,10 @@ class Date:
         if not isinstance(adding_year, int):
             raise TypeError('Year must be int')
 
-        current_year = self._year
-        current_day = self._day
-        future_month = self._month
-        future_year = current_year + adding_year
-        max_day_in_future_month = self.max_day_in_month(future_year, future_month)
-
-        if current_day <= max_day_in_future_month:
+        if self._day <= self.max_day_in_month(self._year + adding_year, self._month):
             self._year += adding_year
         else:
-            self._day = current_day - max_day_in_future_month
+            self._day -= self.max_day_in_month(self._year + adding_year, self._month)
             self._month += 1
             self._year += adding_year
 
@@ -64,47 +58,39 @@ class Date:
         if not isinstance(adding_month, int):
             raise TypeError('Month must be int')
 
-        current_month = self._month
-        current_year = self._year
-        current_day = self._day
-        future_month = (current_month + adding_month - 1) % 12 + 1
-        future_year = current_year + (current_month + adding_month) // 12
+        future_month = (self._month + adding_month - 1) % 12 + 1
+        future_year = self._year + (self._month + adding_month - 1) // 12
         max_day_in_future_month = self.max_day_in_month(future_year, future_month)
 
-        if adding_month <= 12 - current_month and current_day <= max_day_in_future_month:
+        if adding_month <= 12 - self._month and self._day <= max_day_in_future_month:
             self._month += adding_month
 
-        elif adding_month < 12 - current_month and current_day > max_day_in_future_month:
+        elif adding_month < 12 - self._month and self._day > max_day_in_future_month:
             self._month += adding_month + 1
-            self._day = current_day - max_day_in_future_month
+            self._day = max_day_in_future_month
 
-        elif adding_month > 12 - current_month and current_day <= max_day_in_future_month:
-            self._year += (current_month + adding_month) // 12
-            self._month = (current_month + adding_month - 1) % 12 + 1
+        elif adding_month > 12 - self._month and self._day <= max_day_in_future_month:
+            self._year += future_year
+            self._month = future_month
 
-        elif adding_month > 12 - current_month and current_day > max_day_in_future_month:
-            self._year += (current_month + adding_month) // 12
-            self._month = (current_month + adding_month) % 12 + 1
-            self._day = current_day - max_day_in_future_month
+        elif adding_month > 12 - self._month and self._day > max_day_in_future_month:
+            self._year += future_year
+            self._month = future_month
+            self._day = max_day_in_future_month
 
     def add_day(self, adding_day):
         if not isinstance(adding_day, int):
             raise TypeError('Day must be int')
 
-        current_day = self._day
-        current_month = self._month
-        current_year = self._year
-        max_day_in_current_month = self.max_day_in_month(current_year, current_month)
-
         while adding_day > 0:
-            if adding_day + current_day <= max_day_in_current_month:
+            if adding_day + self._day <= self.max_day_in_month(self._year, self._month):
                 self._day += adding_day
                 adding_day = 0
             else:
-                adding_day -= (max_day_in_current_month - current_day + 1)
+                adding_day -= (self.max_day_in_month(self._year, self._month) - self._day + 1)
                 self._day = 1
 
-                if current_month == 12:
+                if self._month == 12:
                     self._month = 1
                     self._year += 1
                 else:
@@ -122,13 +108,9 @@ class Date:
         if not year >= 0:
             raise TypeError('Year must be >= 0')
 
-        current_month = self._month
-        current_day = self._day
-        max_day_in_future_month = self.max_day_in_month(year, current_month)
-
-        if current_day < max_day_in_future_month:
+        if self._day < self.max_day_in_month(year, self._month):
             print(f"Setting year to {year}")
-            self._day = max_day_in_future_month
+            self._day = self.max_day_in_month(year, self._month)
             self._year = year
         else:
             print(f"Setting year to {year}")
@@ -145,17 +127,13 @@ class Date:
         if not 12 >= month > 0:
             raise TypeError('Month must be in [1, 12] interval')
 
-        current_year = self._year
-        current_day = self._day
-        max_day_in_future_month = self.max_day_in_month(current_year, month)
-
         # if next_month == february and current_day > max_day_in_february => 29.02
-        if current_day <= max_day_in_future_month:
+        if self._day <= self.max_day_in_month(self._year, month):
             print(f"Setting month to {month}")
             self._month = month
         else:
             print(f"Setting month to {month}")
-            self._day = max_day_in_future_month
+            self._day = self.max_day_in_month(self._year, month)
             self._month = month
 
     @property
@@ -164,34 +142,31 @@ class Date:
 
     @day.setter
     def day(self, day):
-        current_year = self._year
-        current_month = self._month
-        max_day_in_current_month = self.max_day_in_month(current_year, current_month)
 
         if not isinstance(day, int):
             raise TypeError('Day must be int')
-        if not max_day_in_current_month >= day > 0:
-            raise TypeError(f"Day must be in [1, {max_day_in_current_month}] interval")
+        if not self.max_day_in_month(self._year, self._month) >= day > 0:
+            raise TypeError(f"Day must be in [1, {self.max_day_in_month(self._year, self._month)}] interval")
 
         print(f"Setting day to {day}")
         self._day = day
 
 
-date = Date(467, 2, 28)
+date = Date(884, 2, 29)
 
-# print(f"{date} // ({date._year} год високосный?: {date.is_leap_year(date._year)})")
-# print(f"------------------------------------------------------------------------ ")
+print(f"{date} // ({date._year} год високосный?: {date.is_leap_year(date._year)})")
+print(f"------------------------------------------------------------------------ ")
 
-# date.add_day(5)
-# print(f"{date} // ({date._year} год високосный?: {date.is_leap_year(date._year)})")
-# date.add_day(366)
-# print(f"{date} // ({date._year} год високосный?: {date.is_leap_year(date._year)})")
-# date.add_month(227)
-# print(f"{date} // ({date._year} год високосный?: {date.is_leap_year(date._year)})")
+date.add_day(5)
+print(f"{date} // ({date._year} год високосный?: {date.is_leap_year(date._year)})")
+date.add_day(366)
+print(f"{date} // ({date._year} год високосный?: {date.is_leap_year(date._year)})")
+date.add_month(29)
+print(f"{date} // ({date._year} год високосный?: {date.is_leap_year(date._year)})")
 # date.add_year(1)
 # date.year = 2502
-date.month = 2
-print(f"{date} // ({date._year} год високосный?: {date.is_leap_year(date._year)})")
+# date.month = 2
+# print(f"{date} // ({date._year} год високосный?: {date.is_leap_year(date._year)})")
 # date.day = 29
 # print(f"{date} // ({date._year} год високосный?: {date.is_leap_year(date._year)})")
 
