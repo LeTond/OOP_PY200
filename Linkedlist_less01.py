@@ -2,13 +2,24 @@ from typing import Optional, Any, Iterable
 import weakref
 
 
-class LinkedList:
-    class _Node:
-        def __init__(self, data: Any, prev_node: Optional["_Node"] = None, next_node: Optional["_Node"] = None):
-            self.prev_node = weakref.ref(prev_node) if prev_node is not None else None
-            self.data = data
-            self.next_node = next_node
+class _Node:
+    def __init__(self, data: Any, prev_node: Optional["_Node"] = None, next_node: Optional["_Node"] = None):
+        self.data = data
+        self.next_node = next_node
 
+    @property
+    def pr_node(self):
+        return self._prev_node
+
+    @pr_node.setter
+    def pr_node(self, value):
+        if value is None:
+            self._prev_node = None
+        else:
+            self._prev_node = weakref.ref(value)
+
+
+class LinkedList:
     def __init__(self):
         self.head: Optional[_Node] = None
         self.tail: Optional[_Node] = None
@@ -38,13 +49,13 @@ class LinkedList:
         Добавление ДАННЫХ в конец списка
         """
         if self.head is None:
-            self.head = self._Node(node, None, None)        # None <- node -> None
+            self.head = _Node(node, None, None)        # None <- node -> None
         elif self.tail is None:
-            self.tail = self._Node(node, self.head, None)  # Если хвоста нет, то создаем хвост со ссылками на ГН назад
+            self.tail = _Node(node, self.head, None)  # Если хвоста нет, то создаем хвост со ссылками на ГН назад
             self.head.next_node = self.tail                 # Ссылка от ГН к хвосту (второй ноде)
         else:
             current_node = self.tail        # Назначаем значение хвостовой ноды как "текущую"
-            self.tail = self._Node(node, current_node, None)   # Назначаем хвостовой ноде новое значение
+            self.tail = _Node(node, current_node, None)   # Назначаем хвостовой ноде новое значение
                                                                     # со ссылками на текущую ноду
             current_node.next_node = self.tail
             self._size += 1
@@ -58,8 +69,9 @@ class LinkedList:
 
         if index == 0:
             head = self.head     # Переназначаем ГН
-            self.head = self._Node(node, None, head)  # Назначаем новую ноду головной
-            head.prev_node = weakref.ref(self.head)  # Создаем слабую ссылку от переназначенной ноды к новой ГН
+            self.head = _Node(node, None, head)  # Назначаем новую ноду головной
+
+            head.prev_node = _Node.pr_node = self.head  # Создаем слабую ссылку от переназначенной ноды к новой ГН
             self._size += 1
 
         elif index > self._size:
@@ -73,9 +85,9 @@ class LinkedList:
                 if counter + 1 == index:
                     old_head.next_node = None       # Делаем ссылку на следующую ноду None
                     after_head.prev_node = None     # Делаем ссылку следующей ноды взад None
-                    new_node = self._Node(node, old_head, after_head)       # Создаем новую ноду
+                    new_node = _Node(node, old_head, after_head)       # Создаем новую ноду
                     old_head.next_node = new_node       # Ссылка от ГН к новой ноде
-                    after_head.prev_node = weakref.ref(new_node)        # Ссылка от "следующей ноды" к новой назад
+                    after_head.prev_node = _Node.pr_node = new_node        # Ссылка от "следующей ноды" к новой назад
                 old_head = old_head.next_node       # Если индекс не равен, то переназначаем ГН на следуюущую...
                 after_head = old_head.next_node
                 counter += 1
