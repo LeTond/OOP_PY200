@@ -146,16 +146,14 @@ class LinkedList:
                 "prev_node": id(node.prev_node) if node.prev_node else None,
                 "next_node": id(node.next_node) if node.next_node else None
             }
-        linked_list["head"] = id(self.head)
         return linked_list
 
     def load_dict(self, value: Dict):
         self.clear()
-        head = value.pop("head")
-        for _ in range(len(value)):
-            node_dict = value.pop(head)
+        for ind, val in value.items():
+            node_dict = val
             self.append(node_dict["data"])
-            head = node_dict["next_node"]
+        print(self.save_dict())
 
     def set_structure_driver(self, driver):
         self.__structure_driver = driver
@@ -164,7 +162,7 @@ class LinkedList:
         self.__structure_driver.write(self.save_dict())
 
     def load(self):
-        print(self.__structure_driver.read())
+        self.load_dict(self.__structure_driver.read())
 
 
 if __name__ == '__main__':
@@ -176,8 +174,8 @@ if __name__ == '__main__':
     ll.insert("some_data_1", 3)
     ll.insert("some_data_2", 2)
     ll.insert("some_data_3", 0)
-    print(ll)
-    print(ll.find("some_data_5"))
+    # print(ll)
+    # print(ll.find("some_data_5"))
 
     obj = {
         "a": [
@@ -187,19 +185,19 @@ if __name__ == '__main__':
     }
 
     dct = ll.save_dict()
-    print(dct)
+    # print(dct)
     print(ll.load_dict(dct))
     print(dct)
 
-    print(ll)
-    ll.delete(5)
-    print(len(ll))
-    print(ll)
-    ll.delete(1)
-    print(len(ll))
-    print(ll)
-    print(ll)
-    print(len(ll))
-    print(ll.index(1))
-    print(ll.index(3))
-    print(ll.index(14))
+    # print(ll)
+    # ll.delete(5)
+    # print(len(ll))
+    # print(ll)
+    # ll.delete(1)
+    # print(len(ll))
+    # print(ll)
+    # print(ll)
+    # print(len(ll))
+    # print(ll.index(1))
+    # print(ll.index(3))
+    # print(ll.index(14))
