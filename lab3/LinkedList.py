@@ -143,8 +143,8 @@ class LinkedList:
         for node in self._node_iter():
             linked_list[id(node)] = {
                 "data": node.data,
-                "next_node": id(node.next_node) if node.next_node else None,
-                "prev_node": id(node.prev_node) if node.next_node else None
+                "prev_node": id(node.prev_node) if node.prev_node else None,
+                "next_node": id(node.next_node) if node.next_node else None
             }
         linked_list["head"] = id(self.head)
         return linked_list
