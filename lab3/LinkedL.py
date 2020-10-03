@@ -1,3 +1,4 @@
+from Observer import Observer, Subject, Data
 
 import Drivers
 
@@ -7,10 +8,10 @@ from typing import Dict
 import weakref
 
 
-class _Node:
-    def __init__(self, data: Any, prev_node: Optional["_Node"] = None, next_node: Optional["_Node"] = None):
+class _Node(Data):
+    def __init__(self, data: Subject, prev_node: Optional["_Node"] = None, next_node: Optional["_Node"] = None):
+        super().__init__(data)
         self.prev_node = prev_node
-        self.data = data
         self.next_node = next_node
 
     @property
@@ -25,14 +26,15 @@ class _Node:
             self._prev_node = weakref.ref(value)
 
 
-class LinkedList:
+class LinkedList(Observer):
     def __init__(self):
+        super().__init__()
         self.head: Optional[_Node] = None
         self.tail: Optional[_Node] = None
-        self._size = 0
+        self.size = 0
 
     def __len__(self):
-        return self._size
+        return self.size
 
     def __str__(self):
         list_ = str()
@@ -44,13 +46,26 @@ class LinkedList:
         for node in self._node_iter():
             yield node.data
 
+    # Через счетчик отслеживаем изменения списка
+    @property
+    def size(self):
+        return self._size.data
+
+    @size.setter
+    def size(self, value):
+        if not hasattr(self, "_size"):
+            self._size = Data(value)
+            self._size.add_observer(self)
+        else:
+            self._size.data = value
+
     def _node_iter(self) -> Iterable[_Node]:
         current = self.head
         while current:
             yield current
             current = current.next_node
 
-    def append(self, node: Any):
+    def append(self, node: Subject):
         """
         Добавление ДАННЫХ в конец списка
         """
@@ -64,7 +79,7 @@ class LinkedList:
             self.tail = _Node(node, current_node, None)  # Назначаем хвостовой ноде новое значение
             # со ссылками на текущую ноду
             current_node.next_node = self.tail
-        self._size += 1
+        self.size += 1
 
     def insert(self, node: Any, index: int = 0):
         """
@@ -76,34 +91,34 @@ class LinkedList:
         if index == 0:
             head = self.head  # Переназначаем ГН
             self.head = _Node(node, None, head)  # Назначаем новую ноду головной
-            self._size += 1
+            head.prev_node = self.head
+            self.size += 1
 
-        elif index > self._size:
+        elif index > self.size:
             self.append(node)
 
         else:
             old_head = self.head  # Переназначаем ГН
             after_head = old_head.next_node  # Делаем головную ноду "следующей"
-            counter = 1
-            while counter < self._size:
-                if counter == index:
+            for ind in range(self.size):
+                if ind == index - 1:
                     old_head.next_node = None  # Делаем ссылку на следующую ноду None
                     after_head.prev_node = None  # Делаем ссылку следующей ноды взад None
                     new_node = _Node(node, old_head, after_head)  # Создаем новую ноду
                     old_head.next_node = new_node  # Ссылка от ГН к новой ноде
                     after_head.prev_node = new_node  # Ссылка от "следующей ноды" к новой назад
+                    break
                 old_head = old_head.next_node  # Если индекс не равен, то переназначаем ГН на следуюущую...
                 after_head = old_head.next_node
-                counter += 1
-            self._size += 1
+            self.size += 1
 
     def clear(self):
         """
         Очистка списка
         """
-        self._size = 0
         self.head = None
         self.tail = None
+        self.size = 0
 
     def find(self, data: Any):
         """
@@ -125,7 +140,9 @@ class LinkedList:
                     self.head = node.next_node
                 else:
                     prev_node.next_node = node.next_node
-                self._size -= 1
+                    prev_node.next_node.prev_node = node.prev_node
+                    prev_node = None
+                self.size -= 1
                 break
             prev_node = node
 
@@ -137,6 +154,10 @@ class LinkedList:
             if ind == index:
                 return value
         return "Пустота"
+
+    def update(self):
+        print("Выполнено сохранение")
+        self.save()
 
     def save_dict(self):
         linked_list = {}
@@ -156,7 +177,7 @@ class LinkedList:
         print(self.save_dict())
 
     def set_structure_driver(self, driver):
-        self.__structure_driver = driver
+        self.__structure_driver = driver  # Добавление интерфейса чтения записи
 
     def save(self):
         self.__structure_driver.write(self.save_dict())
@@ -165,39 +186,15 @@ class LinkedList:
         self.load_dict(self.__structure_driver.read())
 
 
-if __name__ == '__main__':
-    ll = LinkedList()
-    ll.append("some_data_4")
-    ll.append("some_data_5")
-    ll.append("some_data_6")
-    ll.insert("some_data_0", 0)
-    ll.insert("some_data_1", 3)
-    ll.insert("some_data_2", 2)
-    ll.insert("some_data_3", 0)
-    # print(ll)
-    # print(ll.find("some_data_5"))
+# if __name__ == '__main__':
+# obj = {
+#     "a": [
+#         {"a": 1, "b": 5, "c": True, "d": "some_str"}, {"first": 54, "second": "some_str"}
+#     ],
+#     "value": (1, 2, 3)
+# }
 
-    obj = {
-        "a": [
-            {"a": 1, "b": 5, "c": True, "d": "some_str"}, {"first": 54, "second": "some_str"}
-        ],
-        "value": (1, 2, 3)
-    }
-
-    dct = ll.save_dict()
-    # print(dct)
-    print(ll.load_dict(dct))
-    print(dct)
-
-    # print(ll)
-    # ll.delete(5)
-    # print(len(ll))
-    # print(ll)
-    # ll.delete(1)
-    # print(len(ll))
-    # print(ll)
-    # print(ll)
-    # print(len(ll))
-    # print(ll.index(1))
-    # print(ll.index(3))
-    # print(ll.index(14))
+# dct = ll.save_dict()
+# print(dct)
+# print(ll.load_dict(dct))
+# print(dct)

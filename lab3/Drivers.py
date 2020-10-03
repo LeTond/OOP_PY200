@@ -70,91 +70,57 @@ class SDWorkers:
         self.__structure_driver = driver
 
 
+if __name__ == '__main__':
+    obj = {
+        "a": [
+            {"a": 1, "b": 5, "c": True, "d": "some_str"}, {"first": 54, "second": "some_str"}
+        ],
+        "value": (1, 2, 3)
+    }
 
 
-obj = {
-    "a": [
-        {"a": 1, "b": 5, "c": True, "d": "some_str"}, {"first": 54, "second": "some_str"}
-    ],
-    "value": (1, 2, 3)
-}
+    # fd_string = JSONStringDriver()
+    # fd_string.write(obj)
+    # print(fd_string.get_string())
+    #
+    # print(id(1))
+    # print(id(2))
 
 
-# fd_string = JSONStringDriver()
-# fd_string.write(obj)
-# print(fd_string.get_string())
-#
-# print(id(1))
-# print(id(2))
+    # fd = JSONFileDriver("some_fie.json")
+    # fd.write(obj)
+    # obj2 = fd.read()
+    # obj2["value"] = tuple(obj2["value"])
+    # assert obj == obj2
 
+    # s = json.dumps([1, 3, "kfhgg"])
+    # print(s, type(s))
+    # obj5 = json.loads(s)
+    # print(obj5, type(obj5))
 
-# fd = JSONFileDriver("some_fie.json")
-# fd.write(obj)
-# obj2 = fd.read()
-# obj2["value"] = tuple(obj2["value"])
-# assert obj == obj2
+    # fd_pickle = PickleDriver("some_file_picle.json")
+    # fd_pickle.write(obj)
+    # obj4 = fd_pickle.read()
+    # print(obj4)
 
-# s = json.dumps([1, 3, "kfhgg"])
-# print(s, type(s))
-# obj5 = json.loads(s)
-# print(obj5, type(obj5))
-
-# fd_pickle = PickleDriver("some_file_picle.json")
-# fd_pickle.write(obj)
-# obj4 = fd_pickle.read()
-# print(obj4)
-
-# id(1)
-#
-# Node: {
-#     "id": 325346547467568,
-#     "data": "some_data",
-#     "prev_node": "Node",
-#     "next_node": 4653476477
-# }
-#
-# LinkedList: {
-#     124323543674: Node,
-#     245465346354: Node,
-# }
-#
-#
-# ["some_data", 1, 10]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    # id(1)
+    #
+    # Node: {
+    #     "id": 325346547467568,
+    #     "data": "some_data",
+    #     "prev_node": "Node",
+    #     "next_node": 4653476477
+    # }
+    #
+    # LinkedList: {
+    #     124323543674: Node,
+    #     245465346354: Node,
+    # }
+    #
+    #
+    # ["some_data", 1, 10]
 
 # В JSON только двойные кавычки. число-число, словарь-словарь, список-список, tuple-список, None-null, True-true
-
-
 # try:
 #     print("Hello")
 # except RuntimeError:
